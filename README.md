@@ -2,8 +2,8 @@
 
 # Points Detector
 
-Download link: [`BackgroundRemover.jar`](https://github.com/kildot/points-detector/releases/latest/download/BackgroundRemover.jar)
+Download link: [`IfjTools.jar`](https://github.com/kildot/points-detector/releases/latest/download/IfjTools.jar)
 
-Help link: [`Points Detector Help`](help/README.md)
+Help link: [`IFJ Tools Help`](help/README.md)
 
-Lastest development version: [`BackgroundRemover.jar`](https://github.com/kildot/points-detector/raw/dev-binaries/BackgroundRemover.jar)
+Latest development version: [`IfjTools.jar`](https://github.com/kildot/points-detector/raw/dev-binaries/IfjTools.jar)

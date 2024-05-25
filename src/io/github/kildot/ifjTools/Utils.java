@@ -1,4 +1,4 @@
-package io.github.kildot.backgroundRemover;
+package io.github.kildot.ifjTools;
 
 import ij.ImagePlus;
 import ij.io.FileInfo;

@@ -2,7 +2,7 @@
 
 ## Instalacja i informacje wstępne
 
-Aby móc używać zestawu narzędzi do przetwarzania obrazów z mikroskopu w celu wyszukania śladów po promieniowaniu należy pobrać plik BackgroundRemover.jar i umieścić go w katalogu Plugins (podkatalog katalogu ImageJ lub Figi.app). Po ponownym uruchomieniu programu powinien być on widoczny w menu rozwijanym w ImageJ: **Plugins -> FNTD IFJ**.
+Aby móc używać zestawu narzędzi do przetwarzania obrazów z mikroskopu w celu wyszukania śladów po promieniowaniu należy pobrać plik IfjTools.jar i umieścić go w katalogu Plugins (podkatalog katalogu ImageJ lub Figi.app). Po ponownym uruchomieniu programu powinien być on widoczny w menu rozwijanym w ImageJ: **Plugins -> FNTD IFJ**.
 
 W skład pakietu **FNTD IFJ** wchodzą następujące narzędzia:
 1. _Background Remover_ - główna część paczki, która służy do analizy obrazu i odseparowania sygnału of szumu.

@@ -5,73 +5,10 @@ on:
   workflow_dispatch:
     inputs:
       tag_name:
-        description: 'Release Tag'     
+        description: 'Release Tag'
         required: false
 jobs:
-  win_native:
-    runs-on: windows-latest
-    steps:
-      - uses: actions/cache@v3
-        with:
-          key: ${{ runner.os }}-msys2
-          path: C:/msys64/var/cache/pacman/pkg
-      - uses: actions/checkout@v3
-      - uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: '8'
-      - name: Prepare msys (1 / 2)
-        shell: bash
-        run: |
-          echo \#!/bin/bash > script.sh
-          echo set -e >> script.sh
-          echo pacman -S --noconfirm mingw-w64-ucrt-x86_64-gcc mingw-w64-i686-gcc >> script.sh
-      - name: Prepare msys (2 / 2)
-        shell: cmd
-        run: |
-          CALL C:\msys64\msys2_shell.cmd -defterm -here -no-start -ucrt64 script.sh
-      - name: Build Windows native libraries
-        shell: cmd
-        run: |
-          other\BuildNative.bat %JAVA_HOME%
-      - name: Check Windows native libraries
-        shell: bash
-        run: |
-          if [ ! -f src/native_tools32.dll ] || [ ! -f src/native_tools64.dll ]; then
-            echo Compilation failed
-            exit 1
-          fi
-      - uses: actions/upload-artifact@v3.1.0
-        with:
-          name: IJ Plugin win native lib
-          path: ./src/*.dll
-          retention-days: 1
-  mac_native:
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-java@v3
-        with:
-          distribution: 'zulu'
-          java-version: '8'
-      - name: Build Mac native libraries
-        shell: bash
-        run: |
-          other/BuildNative.sh $JAVA_HOME
-      - name: Check Mac native libraries
-        shell: bash
-        run: |
-          if [ ! -f src/native_tools.dylib ]; then
-            echo Compilation failed
-            exit 1
-          fi
-      - uses: actions/upload-artifact@v3.1.0
-        with:
-          name: IJ Plugin mac native lib
-          path: ./src/*.dylib
-          retention-days: 1
   build:
-    needs: [ win_native, mac_native ]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -83,22 +20,6 @@ jobs:
         run: |
           mkdir -p ../Fiji.app/jars
           wget -O ../Fiji.app/jars/ij-1.53t.jar https://repo1.maven.org/maven2/net/imagej/ij/1.53t/ij-1.53t.jar
-      - uses: actions/download-artifact@v3
-        with:
-          name: IJ Plugin win native lib
-          path: ./src/
-      - uses: actions/download-artifact@v3
-        with:
-          name: IJ Plugin mac native lib
-          path: ./src/
-      - name: Delete Artifact
-        uses: GeekyEggo/delete-artifact@v2
-        with:
-          name: IJ Plugin win native lib
-      - name: Delete Artifact
-        uses: GeekyEggo/delete-artifact@v2
-        with:
-          name: IJ Plugin mac native lib
       - name: Build the plugin
         run: |
           ant -Dplatforms.JDK_1.8.home=$JAVA_HOME -noinput -buildfile build.xml
