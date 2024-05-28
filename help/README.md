@@ -1,8 +1,8 @@
-# Background Remover Help - PL
+# IFJ toolkit - Help
 
-## Instalacja i informacje wstępne
+## Installation and introductory information
 
-Aby móc używać zestawu narzędzi do przetwarzania obrazów z mikroskopu w celu wyszukania śladów po promieniowaniu należy pobrać plik IfjTools.jar i umieścić go w katalogu Plugins (podkatalog katalogu ImageJ lub Figi.app). Po ponownym uruchomieniu programu powinien być on widoczny w menu rozwijanym w ImageJ: **Plugins -> IFJ Tools**.
+To search for radiation traces using the microscope image processing toolkit, download the IfjTools.jar file and place it in the Plugins directory (a subdirectory of the ImageJ or Figi.app directory). After restarting the program, it will be visible in the drop-down menu in ImageJ: **Plugins -> IFJ Tools**.
 
 W skład pakietu **IFJ Tools** wchodzą następujące narzędzia:
 1. _Slices Correction_ - plugin służący wprowadzaniu do stosu obrazów poprawek na wypalanie i głębokość.
