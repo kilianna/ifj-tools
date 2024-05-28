@@ -4,12 +4,12 @@
 
 To search for radiation traces using the microscope image processing toolkit, download the IfjTools.jar file and place it in the Plugins directory (a subdirectory of the ImageJ or Figi.app directory). After restarting the program, it will be visible in the drop-down menu in ImageJ: **Plugins -> IFJ Tools**.
 
-W skład pakietu **IFJ Tools** wchodzą następujące narzędzia:
-1. _Slices Correction_ - plugin służący wprowadzaniu do stosu obrazów poprawek na wypalanie i głębokość.
-2. _Slice Multiply_ - plugin pozwalający na wprowadzenie dodatkowych poprawek do stosu obrazów.
-3. _Reset color balance_ - plugin przesuwający zakres wyświetlania (display range) tak, aby 0 odpowiadało kolorowi czarnemu.
-4. _Stack to CSV_ - plugin umożliwiający przekonwertowanie stosu obrazów na odpowiadający im zestaw plików CSV.
-5. _Points generator_ - wtyczka generująca punkty o zadanych przez użytkownika parametrach w losowych miejscach na obrazie.
+The IFJ Tools package includes the following:
+1. _Slices Correction_ - for burn and depth corrections to the image stack
+2. _Slice Multiply_ - for additional corrections to the image stack
+3. _Reset Color Balance_ -to shift the display range so that 0 corresponds to black
+4. _Stack to CSV_ - to convert a stack of images into a set of CSV files
+5. _Points Generator_ - for generating points with user-defined parameters in random places in the image
 
 
 W pierwszej kolejności należy wczytać plik w postaci pojedynczego obrazka albo stacku. Obraz (lub stos) powinien być 16-bitowy w odcieniach szarości. Plugin uruchamia się domyślnie dla aktywnego okna. 
