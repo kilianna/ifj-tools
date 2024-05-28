@@ -7,30 +7,27 @@ To search for radiation traces using the microscope image processing toolkit, do
 The IFJ Tools package includes the following:
 1. _Slices Correction_ - for burn and depth corrections to the image stack
 2. _Slice Multiply_ - for additional corrections to the image stack
-3. _Reset Color Balance_ -to shift the display range so that 0 corresponds to black
+3. _Reset Color Balance_ - to shift the display range so that 0 corresponds to black
 4. _Stack to CSV_ - to convert a stack of images into a set of CSV files
 5. _Points Generator_ - for generating points with user-defined parameters in random places in the image
 
-
-W pierwszej kolejności należy wczytać plik w postaci pojedynczego obrazka albo stacku. Obraz (lub stos) powinien być 16-bitowy w odcieniach szarości. Plugin uruchamia się domyślnie dla aktywnego okna. 
-
-Plugin umieszcza adnotacje odnośnie wykonanych na pliku operacji. Można je prześledzić wchodząc w **Image -> Show Info...**.
+The annotations regarding the operations performed on the file are placed by the plugin. They can be viewed by going to **Image -> Show Info...**.
 
 ![Reset](img/adnotacje.JPG)
 
 ## Reset color balance
 
-Dla wybranego obrazka (lub stosu) zakres wyświetlania (Display range) zostaje przesunięty tak, aby wartość piksela równa 0 odpowiadała kolorowi czarnemu. Po wykonaniu wyświetlone zostaje okno z informacją z o przesunięciu.
+For the selected image (or stack), the display range is adjusted so that a pixel value of 0 corresponds to the color black. After execution, a window with information about the adjustment is displayed.
 
 ![Reset](img/log_reset.jpg)
 
-W podanym powyżej przykładzie Display range został przesunięty z zakresu 1746.0 - 15951.0, gdzie 1746.0 odpowiadało najciemniejszemu pikslelowi na obrazie (kolorowi czarnemu), a 15951.0 odpowiadało pikselowi najjasniejszemu (kolorowi białemu) do zakresu 0 - 14205.0. Wartość każdego piksela w każdym z obrazów w stosie została obniżona o 1746.0 i aktualnie piksele w kolorze czarnym mają wartość 0, natomiast piksele w kolorze białym mają wartość 14205.0.
+In the example given above, the display range was originally set from 1746.0 (the darkest pixel, black) to 15951.0 (the brightest pixel, white). It has now been adjusted to range 0 - 14205.0. Each pixel's value in the image stack has been decreased by 1746.0. As a result, black pixels now have a value of 0, and white pixels have a value of 14205.0.
 
 ## Slices Correction
 
-Część pluginu umożliwiająca wprowadzenie poprawek na wypalanie oraz głębokość. 
+The plugin includes a feature for adjusting burning and depth.
 
-Współczynnik korekcyjny na wypalanie dla konkretnego obrazu w stosie obliczany jest według wyznaczonego empirycznie wzoru:
+The burn-in correction factor for a specific image in the stack is determined using an empirically derived formula:
 
 $$
   time\\\_corr = 0.765*e^{(\frac{-t}{443.85})}+0.235
@@ -40,14 +37,14 @@ $$
  t = t_{0}+ (n-1)*step
 $$
 
-gdzie:<br>
-$t_{0}$ - czas początkowy [s];<br>
-$n$ - numer obrazu;<br>
-$step$ - czas odczytu pojedynczego obrazu [s].
+where:<br>
+$t_{0}$ - starting time [s];<br>
+$n$ - image number;<br>
+$step$ - reading time of a single image [s].
 
-Poszczególne wartości pikseli na obrazie są następnie dzielone przez obliczony według powyższego wzoru współczynnik korekcyjny.
+The individual pixel values in the image are then divided by the correction factor calculated according to the formula above.
 
-Analogicznie wprowadzane są poprawki na głębokość. Tutaj także posługujemy się wzorem wyznaczonym empirycznie:
+A similar approach is followed for making depth corrections, with the use of an empirically determined formula:
 
 $$
 depth\\\_corr = e^{-0.015 * d}
@@ -57,43 +54,45 @@ $$
   d = d_{0}+ (n-1)*step
 $$
 
-gdzie:<br>
-$d_{0}$ - głębokość startowa [&mu;m];<br>
-$n$ - numer obrazu;<br>
-$step$ - krok o jaki zwiększana jest głębokość na jakich dokonywany jest odczyt [&mu;m].
+where:<br>
+$d_{0}$ - starting depth [&mu;m];<br>
+$n$ - image number;<br>
+$step$ - the step by which the depth at which the reading is taken is increased [&mu;m].
 
-Podobnie jak wcześniej - wartości poszczególnych pikseli na obrazie dzielone są przez wartość współczynnika korekcyjnego na głębokość wyznaczonego dla danego obrazu.
+As before, the values of individual pixels in the image are divided by the depth correction factor determined for that image.
 
 ![Slices correction](img/Slices_corr.JPG)
 
-Jako wartości wejściowe należy podać:<br>
-**First depth** - głębokość na jakiej dokonywany jest odczyt (0 oznacza powierzchnię) [&mu;m];<br>
-**Slice thick** - krok o jaki zwiększa się głębokość [&mu;m];<br>
-**Time 0** - czas początkowy (w przypadku, gdy dany kryształ był już uprzednio odczytywany) [s];<br>
-**Time** - czas odczytu każdego z obrazów [s].
+The following should be provided as input values:<br>
+**First depth** - the depth at which the reading is taken (0 indicates the surface) [&mu;m];<br>
+**Slice thick** - the step by which the depth increases [&mu;m];<br>
+**Time 0** - starting time (if a given crystal has already been read) [s];<br>
+**Time** - reading time of each image [s].
 
-Program wprowadzi obie poprawki jednocześnie na oryginalnym obrazie.
+The program will apply both corrections to the original image simultaneously.
 
 ![out of range error](img/Values_out_of_range.PNG)
 
-Jeżeli w skutek zastosowanych przeliczeń wartości wynikowe pikseli przekroczą zakres przewidziany dla obrazu 16-bitowego (tj. 65535) wyświetlony zostanie odpowiedni komunikat. Piksele, których wartość po przeliczeniu przekroczyła wartość maksymalną zostają domyślnie ustawione na 65535 (bez względu na ich rzeczywistą wyliczoną wartość). W tym przypadku zależności wartości pomiędzy poszczególnymi pikselami nie zostaja zachowane. 
+If the pixel values exceed the range provided for a 16-bit image after the conversions are applied, a message will be displayed. Pixels with values that exceed the maximum value will be set to a default value (denoted as 65535), regardless of their actual calculated value. In this situation, the relationships between individual pixel values are not preserved.
 
 ## Slice Multiply
 
 ![Slice dev](img/slices_div.JPG)
 
-Część pluginu umożliwiajaca przemnożenie wartości pikseli na poszczególnych obrazach przez podane przez użytkownika wartości. W polu tekstowym należy podać kolejno odpowiednie mnożniki dla poszczególnych obrazów (oddzialając je przecinkiem). W przypadku, gdy dany obraz w stosie ma pozostać bez zmian należy jako odpowiadający mu mnożnik podać wartość 1. Liczba podanych wartości musi się zgadzać z liczbą obrazów w stosie, w przeciwnym razie program wyrzuci informację o niezgodności (poda liczbę współczynników wprowadzonych przez użytkownika oraz liczbę oczekiwanych współczynników).
+This plugin allows you to multiply the pixel values in individual images by the values provided by the user. In the text field, enter the appropriate multipliers for each image, separating them with a comma. If you want a specific image in the stack to remain unchanged, enter the value 1 as the corresponding multiplier. It's important to ensure that the number of values provided matches the number of images in the stack. If there is a mismatch, the program will display information about the inconsistency, providing the number of coefficients entered by the user and the number of expected coefficients.
 
 ![Slice dev](img/log_corr.JPG)
 
-Jeżeli w skutek zastosowanych przeliczeń wartości wynikowe pikseli przekroczą zakres przewidziany dla obrazu 16-bitowego (tj. 65535) wyświetlony zostanie odpowiedni komunikat. Piksele, których wartość po przeliczeniu przekroczyła wartość maksymalną zostają domyślnie ustawione na 65535 (bez względu na ich rzeczywistą wyliczoną wartość). W tym przypadku zależności wartości pomiędzy poszczególnymi pikselami nie zostaja zachowane. 
+If the pixel values resulting from the applied conversions exceed the range specified for a 16-bit image (i.e. 65535), an appropriate message will be displayed. Pixels with values that exceed the maximum value after conversion will be set to 65535 by default, regardless of their actual calculated value. In this scenario, the value relationships between individual pixels are not maintained.
 
 ![Display range too high error](img/Display_range_too_high.PNG)
 
 ## Stack to CSV
-Moduł umożliwiający przekonwertowanie, a następnie wyeksportowanie do pliku stosu obrazów. Uruchomienie tego modułu spowoduje otwarcie okna, w którym należy wybrać nazwę oraz docelową lokalizację eksportowanych plików. Po zaakceptowaniu plugin utowrzy pliki w formacie CSV w lokalizacji podanej przez użytkownika. Nazwy poszczególnych pliów składają się z nazwy podanej przez użytkownika oraz numeru obrazu w stosie (np. nazwa_3.CSV odpowiada trzeciemu z kolei obrazowi w stosie). 
+
+A module is available for converting and exporting a stack of images to a file. When the module is run, a window will open, in which the user must select the name and target location of the exported files. After the user accepts the selection, files in CSV format will be created at the specified location. Each file will be named using the name provided by the user and the image number in the stack (e.g. name_3.CSV corresponds to the third image in the stack).
 
 ## Points Generator
-Moduł służący do generowania punktów o określonych parametrach w losowych miejscach na obrazie. W oknie dialogowym należy podać listę wartości (oddzielonych przecinkami) oraz wielkość punktu (promień) w pikselach. Plugin wygeneruje na obrazie w aktywnym oknie koła o zadanym promieniu. Wartości pikseli w tych kołach zostaną zwiększone o wartości podane na liście (**List of points values**).
+
+Use this module to generate points with specific parameters at random locations in the image. In the dialog box, enter a list of values (separated by commas) and the point size (radius) in pixels. The plugin will create circles with the specified radius on the active window's image. The pixel values within these circles will be increased by the values provided in the list (**List of points values**).
 
 ![Points generator](img/Points_generator.PNG)
