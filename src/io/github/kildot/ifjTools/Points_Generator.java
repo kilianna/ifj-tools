@@ -14,10 +14,10 @@ public class Points_Generator implements PlugIn {
         private double[] averages;
         private double radius;
         private boolean calcAverage;
+        private long globalRandSeed;
 
     @Override
     public void run(String arg) {
-        Random rnd = new Random();
         ImagePlus sourceImage = IJ.getImage();
         ImageStack stack = sourceImage.getStack();
         int count = stack != null ? stack.size() : 1;
@@ -25,6 +25,7 @@ public class Points_Generator implements PlugIn {
         if (!diaglogOk) {
             return;
         }
+        Random rnd = new Random(globalRandSeed);
         for (int i = 0; i < count; i++) {
             long seed = rnd.nextLong();
             ImageProcessor ip = stack != null ? stack.getProcessor(i + 1) : sourceImage.getProcessor();
@@ -33,6 +34,13 @@ public class Points_Generator implements PlugIn {
                 processImage(ip, seed, true);
             }
         }
+        String info = "";
+        for (int i = 0; i < numbers.length; i++) {
+            info += Double.toString(numbers[i]);
+            info += ", ";
+        }
+        info += "radius=" + radius + ", average=" + calcAverage + ", seed=" + globalRandSeed;
+        Utils.addProcessingInfo(sourceImage, sourceImage, "Generate points: " + info);
         sourceImage.updateAndDraw();
     }
 
@@ -41,6 +49,7 @@ public class Points_Generator implements PlugIn {
         dialog.addStringField("List of point values:", "", 60);
         dialog.addStringField("Radius:", "", 30);
         dialog.addCheckbox("Uniform color", true);
+        dialog.addStringField("Random seed:", Integer.toString((new Random()).nextInt(0x7FFFFFF8)), 30);
         dialog.showDialog();
         if (dialog.wasCanceled()) {
             return false;
@@ -66,6 +75,12 @@ public class Points_Generator implements PlugIn {
                 }
                 Vector<Checkbox> boxes = dialog.getCheckboxes();
                 calcAverage = boxes.get(0).getState();
+                try {
+                    globalRandSeed = Long.parseLong(vect.get(2).getText());
+                } catch (NumberFormatException ex) {
+                    IJ.log("Invalid random seed");
+                    return false;
+                }
                 return true;
     }
 
