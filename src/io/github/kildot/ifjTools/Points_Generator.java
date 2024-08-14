@@ -102,8 +102,8 @@ public class Points_Generator implements PlugIn {
                 for (int k = 0; k < numbers.length; k++) {
                     double sum = 0;
                     double count = 0;
-                    double xx = startX + totalX * rnd.nextDouble();
-                    double yy = startY + totalY * rnd.nextDouble();
+                    double xx = Math.round(startX + totalX * rnd.nextDouble());
+                    double yy = Math.round(startY + totalY * rnd.nextDouble());
                     for (int x = (int)(xx - radius) - 1; x < (int)(xx + radius) + 1; x++) {
                         for (int y = (int)(yy - radius) - 1; y < (int)(yy + radius) + 1; y++) {
                             double dx = xx - (double)x;
