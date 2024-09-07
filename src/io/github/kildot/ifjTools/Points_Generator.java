@@ -11,7 +11,7 @@ public class Points_Generator implements PlugIn {
 
     private double[] numbers;
     private double[] averages;
-    private double radius;
+    private double[] radiuses;
     private boolean calcAverage;
     private long globalRandSeed;
 
@@ -43,7 +43,7 @@ public class Points_Generator implements PlugIn {
             info += Double.toString(numbers[i]);
             info += ", ";
         }
-        info += "radius=" + radius + ", average=" + calcAverage + ", seed=" + globalRandSeed;
+        info += "average=" + calcAverage + ", seed=" + globalRandSeed;
         Utils.addProcessingInfo(sourceImage, sourceImage, "Generate points: " + info);
         sourceImage.updateAndDraw();
     }
@@ -70,14 +70,18 @@ public class Points_Generator implements PlugIn {
                 return false;
             }
         }
-        try {
-            radius = Double.parseDouble(vect.get(1).getText());
-            if (radius < 2 || radius > 100) {
-                throw new Exception();
+        radiuses = new double[strings.length];
+        strings = splitParams(vect.get(1).getText());
+        for (int i = 0; i < radiuses.length; i++) {
+            try {
+                radiuses[i] = Double.parseDouble(strings[i % strings.length]);
+                if (radiuses[i] < 2 || radiuses[i] > 100) {
+                    throw new Exception();
+                }
+            } catch (Exception ex) {
+                IJ.log("Invalid radius at position " + (i + 1));
+                return false;
             }
-        } catch (Exception ex) {
-            IJ.log("Invalid radius");
-            return false;
         }
         Vector<Checkbox> boxes = dialog.getCheckboxes();
         calcAverage = boxes.get(0).getState();
@@ -91,24 +95,17 @@ public class Points_Generator implements PlugIn {
     }
 
     private void processImage(ImageProcessor ip, long seed, boolean useAverage) throws OutOfAreaException {
-        LocationGenerator loc = new LocationGenerator(seed, radius, numbers.length);
         int width = ip.getWidth();
         int height = ip.getHeight();
-        double startX = Math.max(width / 20, 2 * radius);
-        double startY = Math.max(height / 20, 2 * radius);
-        double totalX = width - 2 * startX;
-        double totalY = height - 2 * startY;
-        if (totalX < 2 * radius || totalY < 2 * radius) {
-            IJ.log("Invalid radius");
-            return;
-        }
+        LocationGenerator loc = new LocationGenerator(seed, radiuses, width, height);
         if (ip instanceof ShortProcessor) {
             ShortProcessor processor = (ShortProcessor) ip;
             short[] px = (short[]) processor.getPixels();
             for (int k = 0; k < numbers.length; k++) {
+                double radius = radiuses[k];
                 double sum = 0;
                 double count = 0;
-                loc.generate(startX, totalX, startY, totalY);
+                loc.generate();
                 double xx = loc.x;
                 double yy = loc.y;
                 for (int x = (int) (xx - radius) - 1; x < (int) (xx + radius) + 1; x++) {
@@ -140,9 +137,10 @@ public class Points_Generator implements PlugIn {
             ByteProcessor processor = (ByteProcessor) ip;
             byte[] px = (byte[]) processor.getPixels();
             for (int k = 0; k < numbers.length; k++) {
+                double radius = radiuses[k];
                 double sum = 0;
                 double count = 0;
-                loc.generate(startX, totalX, startY, totalY);
+                loc.generate();
                 double xx = loc.x;
                 double yy = loc.y;
                 for (int x = (int) (xx - radius) - 1; x < (int) (xx + radius) + 1; x++) {
@@ -174,9 +172,10 @@ public class Points_Generator implements PlugIn {
             FloatProcessor processor = (FloatProcessor) ip;
             float[] px = (float[]) processor.getPixels();
             for (int k = 0; k < numbers.length; k++) {
+                double radius = radiuses[k];
                 double sum = 0;
                 double count = 0;
-                loc.generate(startX, totalX, startY, totalY);
+                loc.generate();
                 double xx = loc.x;
                 double yy = loc.y;
                 for (int x = (int) (xx - radius) - 1; x < (int) (xx + radius) + 1; x++) {
@@ -215,32 +214,38 @@ public class Points_Generator implements PlugIn {
 
         public double x;
         public double y;
-        private final double radius;
+        private final double[] radiuses;
         private final Random rnd;
         private final double[] oldX;
         private final double[] oldY;
         private int oldCount;
+        private int width;
+        private int height;
 
-        public LocationGenerator(long seed, double radius, int maxCount) {
-            this.radius = radius;
+        public LocationGenerator(long seed, double[] radiuses, int width, int height) {
+            this.radiuses = radiuses;
+            this.width = width;
+            this.height = height;
             rnd = new Random(seed);
-            oldX = new double[maxCount];
-            oldY = new double[maxCount];
+            oldX = new double[radiuses.length];
+            oldY = new double[radiuses.length];
             oldCount = 0;
         }
 
-        public void generate(double startX, double totalX, double startY, double totalY) throws OutOfAreaException {
+        public void generate() throws OutOfAreaException {
             int counter = 0;
             boolean ok;
             do {
                 ok = true;
-                x = Math.round(startX + totalX * rnd.nextDouble());
-                y = Math.round(startY + totalY * rnd.nextDouble());
+                double radius = radiuses[oldCount];
+                x = Math.round(2 * radius + ((double)width - 4 * radius) * rnd.nextDouble());
+                y = Math.round(2 * radius + ((double)height - 4 * radius) * rnd.nextDouble());
                 for (int i = 0; i < oldCount; i++) {
                     double dx = oldX[i] - x;
                     double dy = oldY[i] - y;
                     double d = Math.sqrt(dx * dx + dy * dy);
-                    if (d <= 2.0 * radius + 1.0) {
+                    double r1 = radiuses[i];
+                    if (d <= r1 + radius + 3.0) {
                         ok = false;
                         break;
                     }
